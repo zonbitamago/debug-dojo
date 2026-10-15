@@ -1,6 +1,6 @@
 diff -ruN -x node_modules -x target -x tmp -x log -x .git -x dist -x Gemfile.lock -x チケット a/frontend/src/components/ShopPage.vue b/frontend/src/components/ShopPage.vue
---- a/frontend/src/components/ShopPage.vue	2026-10-15 03:17:01.819850905 +0000
-+++ b/frontend/src/components/ShopPage.vue	2026-10-15 03:17:01.805727564 +0000
+--- a/frontend/src/components/ShopPage.vue
++++ b/frontend/src/components/ShopPage.vue
 @@ -17,7 +17,7 @@
    }
  }

@@ -1,6 +1,6 @@
 diff -ruN -x node_modules -x target -x tmp -x log -x .git -x dist -x Gemfile.lock -x チケット a/backend/src/orderRepository.ts b/backend/src/orderRepository.ts
---- a/backend/src/orderRepository.ts	2026-10-15 03:17:01.921700589 +0000
-+++ b/backend/src/orderRepository.ts	2026-10-15 03:17:01.906093791 +0000
+--- a/backend/src/orderRepository.ts
++++ b/backend/src/orderRepository.ts
 @@ -37,15 +37,19 @@
  
  export async function findOrdersByUser(userId: number): Promise<OrderView[]> {

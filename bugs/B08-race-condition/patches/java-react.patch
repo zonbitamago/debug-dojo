@@ -1,6 +1,6 @@
 diff -ruN -x node_modules -x target -x tmp -x log -x .git -x dist -x Gemfile.lock -x チケット a/backend/src/main/java/com/example/shop/InventoryService.java b/backend/src/main/java/com/example/shop/InventoryService.java
---- a/backend/src/main/java/com/example/shop/InventoryService.java	2026-10-15 03:17:02.725614713 +0000
-+++ b/backend/src/main/java/com/example/shop/InventoryService.java	2026-10-15 03:17:02.708855953 +0000
+--- a/backend/src/main/java/com/example/shop/InventoryService.java
++++ b/backend/src/main/java/com/example/shop/InventoryService.java
 @@ -14,17 +14,18 @@
          this.jdbc = jdbc;
      }

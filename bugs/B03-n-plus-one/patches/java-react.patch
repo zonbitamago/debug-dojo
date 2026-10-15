@@ -1,6 +1,6 @@
 diff -ruN -x node_modules -x target -x tmp -x log -x .git -x dist -x Gemfile.lock -x チケット a/backend/src/main/java/com/example/shop/OrderRepository.java b/backend/src/main/java/com/example/shop/OrderRepository.java
---- a/backend/src/main/java/com/example/shop/OrderRepository.java	2026-10-15 03:17:02.028357178 +0000
-+++ b/backend/src/main/java/com/example/shop/OrderRepository.java	2026-10-15 03:17:02.008935313 +0000
+--- a/backend/src/main/java/com/example/shop/OrderRepository.java
++++ b/backend/src/main/java/com/example/shop/OrderRepository.java
 @@ -37,17 +37,19 @@
      public List<OrderView> findByUser(long userId) {
          return jdbc.query(

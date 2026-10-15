@@ -15,4 +15,4 @@ tmp="$(mktemp -d)"; trap 'rm -rf "$tmp"' EXIT
 ln -s "$(cd "$edited" && pwd)" "$tmp/b"
 cd "$tmp"
 diff -ruN -x node_modules -x target -x tmp -x log -x .git -x dist -x Gemfile.lock -x 'チケット' a b/ \
-  | sed -e 's#^+++ b//#+++ b/#' || true
+  | sed -E -e 's#^\+\+\+ b//#+++ b/#' -e 's#^((---|\+\+\+) [^\t]+)\t.*$#\1#' || true

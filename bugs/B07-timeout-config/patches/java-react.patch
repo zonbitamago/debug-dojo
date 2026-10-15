@@ -1,6 +1,6 @@
 diff -ruN -x node_modules -x target -x tmp -x log -x .git -x dist -x Gemfile.lock -x チケット a/docker-compose.yml b/docker-compose.yml
---- a/docker-compose.yml	2026-10-15 03:17:02.570879696 +0000
-+++ b/docker-compose.yml	2026-10-15 03:17:02.552314275 +0000
+--- a/docker-compose.yml
++++ b/docker-compose.yml
 @@ -25,7 +25,7 @@
      environment:
        DATABASE_URL_JDBC: jdbc:postgresql://db:5432/shop

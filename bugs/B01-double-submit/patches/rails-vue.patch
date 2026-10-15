@@ -1,6 +1,6 @@
 diff -ruN -x node_modules -x target -x tmp -x log -x .git -x dist -x Gemfile.lock -x チケット a/frontend/src/components/OrderForm.vue b/frontend/src/components/OrderForm.vue
---- a/frontend/src/components/OrderForm.vue	2026-10-15 03:17:01.662080168 +0000
-+++ b/frontend/src/components/OrderForm.vue	2026-10-15 03:17:01.647279232 +0000
+--- a/frontend/src/components/OrderForm.vue
++++ b/frontend/src/components/OrderForm.vue
 @@ -10,7 +10,6 @@
  const message = ref<{ type: 'success' | 'error'; text: string } | null>(null);
  

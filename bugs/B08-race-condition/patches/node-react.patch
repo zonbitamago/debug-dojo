@@ -1,6 +1,6 @@
 diff -ruN -x node_modules -x target -x tmp -x log -x .git -x dist -x Gemfile.lock -x チケット a/backend/src/inventory.ts b/backend/src/inventory.ts
---- a/backend/src/inventory.ts	2026-10-15 03:17:02.616403865 +0000
-+++ b/backend/src/inventory.ts	2026-10-15 03:17:02.601258492 +0000
+--- a/backend/src/inventory.ts
++++ b/backend/src/inventory.ts
 @@ -11,13 +11,10 @@
    productId: number,
    quantity: number,

@@ -1,6 +1,6 @@
 diff -ruN -x node_modules -x target -x tmp -x log -x .git -x dist -x Gemfile.lock -x チケット a/backend/src/main/java/com/example/shop/OrderService.java b/backend/src/main/java/com/example/shop/OrderService.java
---- a/backend/src/main/java/com/example/shop/OrderService.java	2026-10-15 03:17:02.196837377 +0000
-+++ b/backend/src/main/java/com/example/shop/OrderService.java	2026-10-15 03:17:02.179727168 +0000
+--- a/backend/src/main/java/com/example/shop/OrderService.java
++++ b/backend/src/main/java/com/example/shop/OrderService.java
 @@ -3,6 +3,8 @@
  import com.example.shop.PaymentClient.PaymentResult;
  import com.example.shop.Views.CreatedOrder;

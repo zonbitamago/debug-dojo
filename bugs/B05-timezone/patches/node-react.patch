@@ -1,6 +1,6 @@
 diff -ruN -x node_modules -x target -x tmp -x log -x .git -x dist -x Gemfile.lock -x チケット a/backend/src/report.ts b/backend/src/report.ts
---- a/backend/src/report.ts	2026-10-15 03:17:02.249133871 +0000
-+++ b/backend/src/report.ts	2026-10-15 03:17:02.229352857 +0000
+--- a/backend/src/report.ts
++++ b/backend/src/report.ts
 @@ -8,7 +8,7 @@
  
  export async function dailySales(): Promise<DailySales[]> {

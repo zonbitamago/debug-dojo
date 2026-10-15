@@ -1,6 +1,6 @@
 diff -ruN -x node_modules -x target -x tmp -x log -x .git -x dist -x Gemfile.lock -x チケット a/frontend/src/components/ShopPage.tsx b/frontend/src/components/ShopPage.tsx
---- a/frontend/src/components/ShopPage.tsx	2026-10-15 03:17:01.868701524 +0000
-+++ b/frontend/src/components/ShopPage.tsx	2026-10-15 03:17:01.855088654 +0000
+--- a/frontend/src/components/ShopPage.tsx
++++ b/frontend/src/components/ShopPage.tsx
 @@ -12,7 +12,7 @@
        .getProducts(userId)
        .then(setProducts)

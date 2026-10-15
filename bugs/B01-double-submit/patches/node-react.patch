@@ -1,6 +1,6 @@
 diff -ruN -x node_modules -x target -x tmp -x log -x .git -x dist -x Gemfile.lock -x チケット a/frontend/src/components/OrderForm.tsx b/frontend/src/components/OrderForm.tsx
---- a/frontend/src/components/OrderForm.tsx	2026-10-15 03:17:01.611266156 +0000
-+++ b/frontend/src/components/OrderForm.tsx	2026-10-15 03:17:01.596879629 +0000
+--- a/frontend/src/components/OrderForm.tsx
++++ b/frontend/src/components/OrderForm.tsx
 @@ -13,7 +13,6 @@
    const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
  

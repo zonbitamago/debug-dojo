@@ -1,6 +1,6 @@
 diff -ruN -x node_modules -x target -x tmp -x log -x .git -x dist -x Gemfile.lock -x チケット a/backend/app/services/inventory.rb b/backend/app/services/inventory.rb
---- a/backend/app/services/inventory.rb	2026-10-15 03:17:02.662195817 +0000
-+++ b/backend/app/services/inventory.rb	2026-10-15 03:17:02.646307459 +0000
+--- a/backend/app/services/inventory.rb
++++ b/backend/app/services/inventory.rb
 @@ -2,11 +2,10 @@
    module_function
  

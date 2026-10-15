@@ -87,6 +87,10 @@ cd ../shop-clean && docker compose up --build
 scripts/verify-patches.sh
 ```
 
+### 正解版のコードを変更したとき
+
+`python3 tools/build_patches.py` で全バグのパッチを再生成し、`scripts/verify-patches.sh` で確認します。パッチは手で編集せず、`tools/bug_edits.py` の置換定義を直してください。
+
 ### 新しいバグを追加する
 
 1. `bugs/B09-xxx/` を作り、`symptom.md` と `answer.md` を書く(既存のバグを参考にしてください)。
@@ -113,6 +117,7 @@ scripts/verify-patches.sh
 .
 ├── bugs/                 バグごとのチケット・解説・パッチ
 ├── docs/運用ガイド.md     演習の進め方、出題の組み方、振り返りの観点
+├── tools/                全バグのパッチを一括で再生成するスクリプトと、各バグの置換定義
 ├── scripts/
 │   ├── new-exercise.sh   演習用リポジトリの生成
 │   ├── assemble.sh       正解版の組み立て
