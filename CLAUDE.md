@@ -38,41 +38,45 @@
 
 ## 動作確認の状況
 
-作成時(claude.ai 上の環境)には RubyGems と Maven Central に接続できなかったため、確認できた範囲が限られている。
+作成時(claude.ai 上の環境)には RubyGems と Maven Central に接続できず、rails-vue と java-react は実行していなかった。2026-10-15 に macOS(Apple Silicon、Docker Desktop)で3スタックすべてを `docker compose` で起動し、正解版と全バグを1つずつ仕込んだ版を確認した。
 
 | 確認項目 | node-react | rails-vue | java-react |
 |---|---|---|---|
 | 全パッチの単独・同時適用 | 済 | 済 | 済 |
-| フロントエンドのビルド、ブラウザでの B01・B02 再現 | 済 | 済 | 済(React は共通) |
-| バックエンドの構文チェック | 済 | 済(`ruby -c`) | 済(Spring 等のスタブを使った型チェックまで) |
-| 正解版と B03〜B08 の実行による確認 | 済(ローカルの PostgreSQL と Node で実行) | **未** | **未** |
-| `docker compose up --build` での起動 | **未** | **未** | **未** |
+| `docker compose up --build` での起動 | 済 | 済 | 済 |
+| 正解版の動作(画面と API) | 済 | 済 | 済 |
+| B01・B02 の症状再現(ブラウザ) | 済 | 済(Vue 画面) | 済 |
+| B03〜B08 の症状再現 | 済 | 済(B03 は差が小さい。下記) | 済 |
+
+起動にかかった時間は、イメージのビルド後で約50秒(うちDBへの300万件の投入が約30秒)。
 
 ## 未完了の作業(優先順)
 
-1. **3スタックすべてを Docker で起動し、正解版が動くことを確認する。** 特に rails-vue と java-react は一度も実行されていない。初回はDBに注文300万件を投入するため、起動まで数分かかる(作成環境では投入に約41秒)。
-2. **rails-vue と java-react で、全バグの症状が再現することを確認する。** 期待される結果は下の表のとおり。
-3. **症状の再現を自動で確かめるスモークテストを作る。** 例:`scripts/smoke-test.sh <stack>` で、正解版とバグ入り版をそれぞれ Docker で起動し、下の表の内容を API と psql で確認する。正解版のコード変更時の回帰確認に使えるようにする。
-4. **依存関係を固定する。** rails-vue は `Gemfile.lock` がまだないので、初回の `bundle install` で生成されたものをコミットする。node のフロントエンドとバックエンドも、`package-lock.json` を生成してコミットするか検討する(バージョンは `package.json` で固定済み)。
-5. 実行して問題が見つかった場合は、正解版を直し、「正解版のコードを変更するときの手順」に従ってパッチを再生成する。`README.md` の「動作確認の状況」の表も更新する。
+1. **症状の再現を自動で確かめるスモークテストを作る。** 例:`scripts/smoke-test.sh <stack>` で、正解版とバグ入り版をそれぞれ Docker で起動し、下の表の内容を API と psql で確認する。正解版のコード変更時の回帰確認に使えるようにする。作るときは「実行して分かった注意点」も参照する。
+2. **依存関係を固定する。** rails-vue は `Gemfile.lock` がまだないので、初回の `bundle install` で生成されたものをコミットする(2026-10-15 の確認時は rails 7.2.4、pg 1.7.0、puma 6.6.1 が入った)。node のフロントエンドとバックエンドも、`package-lock.json` を生成してコミットするか検討する(バージョンは `package.json` で固定済み)。
+3. 実行して問題が見つかった場合は、正解版を直し、「正解版のコードを変更するときの手順」に従ってパッチを再生成する。`README.md` の「動作確認の状況」の表も更新する。
 
 ## 期待される結果(症状の確認方法)
 
-API は `http://localhost:8080`、ユーザーは `X-User-Id` ヘッダーで指定する(1=田中、2=佐藤)。値は node-react で実測したもの。
+API は `http://localhost:8080`、ユーザーは `X-User-Id` ヘッダーで指定する(1=田中、2=佐藤)。値は 2026-10-15 に macOS の Docker で実測したもの。応答時間はマシンによって変わる(作成環境の node-react では B03 が約450ms、B06 が約210ms だった)ので、正解版との差で判断する。
 
 | バグ | 確認方法 | 正解版 | バグ入り版 |
 |---|---|---|---|
-| B01 | 画面で注文ボタンをダブルクリック | 注文1件 | 注文2件 |
+| B01 | 画面で注文ボタンをダブルクリック | POST 1回、注文1件 | POST 2回、注文2件 |
 | B02 | 画面で注文後、一覧の在庫表示を見る | 在庫表示が減る | 在庫表示が変わらない(DBは減っている) |
-| B03 | `GET /api/orders`(ユーザー2、1,200件) | 11〜37ms | 約450ms、クエリ1,201回 |
-| B04 | 商品7を2個注文(79,600円、与信上限で402) | 在庫80のまま | 在庫80→78(Java は `pending` の注文も残る) |
-| B05 | `GET /api/reports/daily-sales` と、日本時間で集計したSQLを比較 | 一致 | 各日ずれる。当日分が大きく減る |
-| B06 | `GET /api/orders/search?number=ORD-11234567` | 約3ms | 約210ms(`EXPLAIN` で Seq Scan) |
-| B07 | 商品2を1個注文(12,800円、決済モックは1.5秒で応答) | 201 | 約1秒で402。`/charges` では同じ注文番号が承認済み |
-| B08 | 商品8の在庫を10に戻し、15件を同時に注文 | 成立10件、在庫0 | 成立15件、在庫9など |
+| B03 | `GET /api/orders`(ユーザー2、1,200件) | node 8〜13ms、rails 27〜59ms、java 11〜15ms | node 160〜187ms、rails 104〜135ms、java 145〜168ms。DB へのクエリは node と java が1,201回、rails は8回(下記) |
+| B04 | 商品7を2個注文(79,600円、与信上限で402) | 在庫80のまま | 在庫80→78(Java は `pending` の注文も1件残る) |
+| B05 | `GET /api/reports/daily-sales` と、日本時間で集計したSQLを比較 | 一致 | 各日ずれる。当日分は約3分の1になる |
+| B06 | `GET /api/orders/search?number=ORD-11234567` | 2〜15ms(Index Scan) | 60〜181ms(`EXPLAIN` で Parallel Seq Scan) |
+| B07 | 商品2を1個注文(12,800円、決済モックは1.5秒で応答) | 201(約1.5秒) | 約1.0〜1.15秒で402。`/charges` では同じ注文番号が承認済みで、自社DBには注文がない |
+| B08 | 商品8の在庫を10に戻し、15件を同時に注文 | 成立10件、在庫0 | 成立15件、在庫8〜9 |
 
-## 未検証のため、問題が出たら疑う箇所
+rails-vue の B03 は、Rails のクエリキャッシュが同じ商品の SELECT を再利用するため、DB に届くクエリは8回(注文の取得1回と商品7種類)にとどまる。ログには `(1201 queries, 1193 cached)` と出るので N+1 であることは分かるが、遅さは正解版の2〜4倍程度で、他のスタックより差が小さい。
 
-- **Rails**:`config.time_zone = "Tokyo"` のためにコンテナに `tzdata` を入れている。`orders.order_number` は DB 側の既定値(`nextval`)で採番しており、Active Record がこの列を INSERT から除外する前提で `Order.create!` のあとに `reload` している。手書きの最小構成(`rails new` を使っていない)なので、起動時の設定不足が出る可能性がある。
-- **Java**:`PaymentClient` は HTTP/1.1 を明示している(Node の決済モックとの相性のため)。`OffsetDateTime` が ISO 形式の文字列で JSON 化される前提。B03 は RowMapper の中で別クエリを実行するため、コネクションプールから2本目の接続を使う。
-- **共通**:`docker-compose.yml` の DB の healthcheck は、初期データ投入が終わるまで待つ設定(最大10分)。
+## 実行して分かった注意点
+
+- **ポートの競合**:DB はホストの 5432 番を使う。ほかの PostgreSQL と競合する場合は、`docker-compose.override.yml` で `ports: !override` を使って別の番号にする。
+- **コード変更の反映**:node-react の `tsx watch` は、エディタでの上書き保存は検知するが、`patch` コマンドのようにファイルを置き換える書き込みは検知しない。スモークテストでパッチを当てたあとは `docker compose restart backend` で再起動する。Rails は再起動なしで反映される。Java は `docker compose up -d --build backend` が必要(1回10〜20秒)。B07 は `docker-compose.yml` の変更なので、どのスタックでも `docker compose up -d backend` でコンテナを作り直す。
+- **起動直後の画面**:バックエンドが待ち受けを始める前に画面を開くと、商品一覧の取得が500になる(Vite のプロキシが接続を拒否されるため)。再読み込みすれば表示される。
+- **macOS でのパッチの再生成**:macOS の `diff` は GNU diff と差分の区切り方が異なることがあり、`build_patches.py` を実行すると `bugs/B03-n-plus-one/patches/java-react.patch` にだけ見た目の差分が出る(適用結果は同じ)。正解版を変えていないときは `git checkout` で戻してよい。
+- **API の JSON の細かな違い**:日時は node と java が UTC(`Z`)、rails が `+09:00` で返す。java は注文一覧にも `userName: null` を含める。画面はどちらでも日本時間で表示されるので、演習には影響しない。
