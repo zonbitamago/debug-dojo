@@ -1,0 +1,12 @@
+diff -ruN -x node_modules -x target -x tmp -x log -x .git -x dist -x Gemfile.lock -x チケット a/backend/report.go b/backend/report.go
+--- a/backend/report.go
++++ b/backend/report.go
+@@ -10,7 +10,7 @@
+ 
+ func findDailySales(ctx context.Context, db dbtx) ([]dailySales, error) {
+ 	rows, err := db.Query(ctx, `
+-		SELECT to_char((created_at AT TIME ZONE 'Asia/Tokyo')::date, 'YYYY-MM-DD') AS day,
++		SELECT to_char(created_at::date, 'YYYY-MM-DD') AS day,
+ 		       count(*) AS orders,
+ 		       sum(amount) AS sales
+ 		  FROM orders

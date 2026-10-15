@@ -5,7 +5,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 from bug_edits import EDITS
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-STACKS = ["node-react", "rails-vue", "java-react"]
+STACKS = ["node-react", "rails-vue", "java-react", "go-react"]
 
 def apply(tree, edits):
     for rel, old, new in edits:

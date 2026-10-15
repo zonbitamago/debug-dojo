@@ -16,6 +16,7 @@
 | Node.js | `backend/src/report.ts` |
 | Rails | `backend/app/controllers/reports_controller.rb` |
 | Java | `backend/src/main/java/.../ReportRepository.java` |
+| Go | `backend/report.go` |
 
 いずれも `(created_at AT TIME ZONE 'Asia/Tokyo')::date` を `created_at::date` に変更しています。
 

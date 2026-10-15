@@ -18,6 +18,7 @@
 | Node.js | `backend/src/inventory.ts` の `reserveStock` |
 | Rails | `backend/app/services/inventory.rb` の `reserve`(`find_by` して `update!`) |
 | Java | `backend/src/main/java/.../InventoryService.java` の `reserve` |
+| Go | `backend/inventory.go` の `reserveStock` |
 
 ## 想定される調査の流れ
 

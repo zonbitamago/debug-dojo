@@ -8,7 +8,7 @@
 
 ```
 debug-dojo(このリポジトリ・シニアのみ)          演習用リポジトリ(若手に渡す)
-├─ 正解版のアプリ(3スタック)                    ├─ 選んだバグだけを仕込んだアプリ
+├─ 正解版のアプリ(4スタック)                    ├─ 選んだバグだけを仕込んだアプリ
 ├─ バグごとのパッチ・チケット・解説   ──生成──▶   ├─ チケット(症状の報告のみ)
 └─ 生成スクリプト                                └─ 調査ログのテンプレート
 ```
@@ -22,6 +22,7 @@ debug-dojo(このリポジトリ・シニアのみ)          演習用リポジ�
 | `node-react` | React + TypeScript | Node.js + Express + TypeScript | PostgreSQL 16 |
 | `rails-vue` | Vue 3 + TypeScript | Ruby on Rails 7.2(API) | PostgreSQL 16 |
 | `java-react` | React + TypeScript | Java 21 + Spring Boot 3 | PostgreSQL 16 |
+| `go-react` | React + TypeScript | Go 1.23 + net/http + pgx | PostgreSQL 16 |
 
 題材はすべて同じECサイトの注文機能で、DB、決済代行のモック、画面の仕様、バグの症状も共通です。若手が普段触る技術に近いスタックを選んでください。
 
@@ -126,26 +127,27 @@ scripts/verify-patches.sh
 ├── shared/
 │   ├── db/init.sql       テーブル定義と初期データ(注文300万件)
 │   ├── payment-mock/     決済代行サービスのモック
-│   ├── frontend-react/   React の画面(node-react / java-react で共用)
+│   ├── frontend-react/   React の画面(node-react / java-react / go-react で共用)
 │   ├── frontend-vue/     Vue の画面(rails-vue で使用)
 │   └── exercise-kit/     演習用リポジトリの README と調査ログのテンプレート
 └── stacks/
     ├── node-react/       Node.js のバックエンドと docker-compose.yml
     ├── rails-vue/        Rails のバックエンドと docker-compose.yml
-    └── java-react/       Spring Boot のバックエンドと docker-compose.yml
+    ├── java-react/       Spring Boot のバックエンドと docker-compose.yml
+    └── go-react/         Go のバックエンドと docker-compose.yml
 ```
 
 ## 動作確認の状況
 
-2026-10-15 に、macOS(Apple Silicon、Docker Desktop)で3スタックすべてを `docker compose up --build` で起動し、正解版の動作と、各バグを1つずつ仕込んだときの症状を確認しました。
+2026-10-15 に、macOS(Apple Silicon、Docker Desktop)で4スタックすべてを `docker compose up --build` で起動し、正解版の動作と、各バグを1つずつ仕込んだときの症状を確認しました(go-react は同日に追加)。
 
-| 確認項目 | node-react | rails-vue | java-react |
-|---|---|---|---|
-| 全パッチの単独適用・同時適用 | 確認済み | 確認済み | 確認済み |
-| Docker での起動 | 確認済み | 確認済み | 確認済み |
-| 正解版の動作(画面・API・DB) | 確認済み | 確認済み | 確認済み |
-| ブラウザでの B01・B02 の症状再現 | 確認済み | 確認済み(Vue 画面) | 確認済み |
-| B03〜B08 の症状再現 | 確認済み | 確認済み | 確認済み |
+| 確認項目 | node-react | rails-vue | java-react | go-react |
+|---|---|---|---|---|
+| 全パッチの単独適用・同時適用 | 確認済み | 確認済み | 確認済み | 確認済み |
+| Docker での起動 | 確認済み | 確認済み | 確認済み | 確認済み |
+| 正解版の動作(画面・API・DB) | 確認済み | 確認済み | 確認済み | 確認済み |
+| ブラウザでの B01・B02 の症状再現 | 確認済み | 確認済み(Vue 画面) | 確認済み | 確認済み |
+| B03〜B08 の症状再現 | 確認済み | 確認済み | 確認済み | 確認済み |
 
 主な確認結果(正解版 → バグあり)は次のとおりです。応答時間はマシンによって変わります。
 
@@ -153,7 +155,7 @@ scripts/verify-patches.sh
 |---|---|---|
 | B01 | ダブルクリックしても注文1件 | 注文2件 |
 | B02 | 注文後に在庫表示が減る | 在庫表示が変わらない(DBは減っている) |
-| B03 | 佐藤さんの注文履歴 8〜59ms | 104〜187ms。クエリ 1,201回(Rails はクエリキャッシュが効き、DB に届くのは8回) |
+| B03 | 佐藤さんの注文履歴 6〜59ms | 99〜187ms。クエリ 1,201回(Rails はクエリキャッシュが効き、DB に届くのは8回) |
 | B04 | 与信上限エラー後も在庫 80 のまま | 在庫 80 → 78(Java は `pending` の注文も残る) |
 | B05 | 日別の件数が日本時間の集計と一致 | 各日ずれ、当日分は約3分の1 |
 | B06 | 注文番号検索 2〜15ms | 60〜181ms(全件走査) |

@@ -1,0 +1,33 @@
+diff -ruN -x node_modules -x target -x tmp -x log -x .git -x dist -x Gemfile.lock -x チケット a/backend/order_repository.go b/backend/order_repository.go
+--- a/backend/order_repository.go
++++ b/backend/order_repository.go
+@@ -21,12 +21,10 @@
+ 
+ func findOrdersByUser(ctx context.Context, db dbtx, userID int64) ([]orderView, error) {
+ 	rows, err := db.Query(ctx, `
+-		SELECT o.id, o.order_number, o.quantity, o.amount, o.status, o.created_at,
+-		       p.name AS product_name
+-		  FROM orders o
+-		  JOIN products p ON p.id = o.product_id
+-		 WHERE o.user_id = $1
+-		 ORDER BY o.created_at DESC`,
++		SELECT id, order_number, product_id, quantity, amount, status, created_at
++		  FROM orders
++		 WHERE user_id = $1
++		 ORDER BY created_at DESC`,
+ 		userID)
+ 	if err != nil {
+ 		return nil, err
+@@ -36,7 +34,11 @@
+ 	orders := []orderView{}
+ 	for rows.Next() {
+ 		var o orderView
+-		if err := rows.Scan(&o.ID, &o.OrderNumber, &o.Quantity, &o.Amount, &o.Status, &o.CreatedAt, &o.ProductName); err != nil {
++		var productID int64
++		if err := rows.Scan(&o.ID, &o.OrderNumber, &productID, &o.Quantity, &o.Amount, &o.Status, &o.CreatedAt); err != nil {
++			return nil, err
++		}
++		if err := db.QueryRow(ctx, `SELECT name FROM products WHERE id = $1`, productID).Scan(&o.ProductName); err != nil {
+ 			return nil, err
+ 		}
+ 		orders = append(orders, o)

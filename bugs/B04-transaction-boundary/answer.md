@@ -16,8 +16,9 @@
 | Node.js | `backend/src/orderService.ts` | `reserveStock(client, ...)` を `reserveStock(pool, ...)` に変更。トランザクション中の接続ではなく、プールの別の接続で実行される |
 | Rails | `backend/app/services/order_service.rb` | 在庫の確保を `transaction do` ブロックの外に移動 |
 | Java | `backend/src/main/java/.../OrderService.java` | `@Transactional` を付けたメソッドを、同じクラスの別メソッドから呼び出す形に変更。自己呼び出しではプロキシを経由しないため、トランザクションが効かない |
+| Go | `backend/order_service.go` | 在庫の確保を `s.pool.Begin` の前に移動し、トランザクションではなくプール(`s.pool`)で実行 |
 
-Node.js 版は1単語の違い、Java 版は Spring の有名な落とし穴で、どちらもコードを読むだけでは気づきにくいバグです。Java 版ではトランザクション全体が無効になるため、決済に失敗した注文が `pending` のまま残るという追加の症状も出ます。
+Node.js 版は1単語の違い、Java 版は Spring の有名な落とし穴で、どちらもコードを読むだけでは気づきにくいバグです。Go 版は Rails 版と同じく、在庫の確保を先に済ませてからトランザクションを始める形です。Java 版ではトランザクション全体が無効になるため、決済に失敗した注文が `pending` のまま残るという追加の症状も出ます。
 
 ## 想定される調査の流れ
 

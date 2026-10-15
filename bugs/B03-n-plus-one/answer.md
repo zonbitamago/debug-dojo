@@ -16,6 +16,7 @@
 | Node.js | `backend/src/orderRepository.ts` の `findOrdersByUser` | JOIN をやめ、ループの中で商品名を取得 |
 | Rails | `backend/app/controllers/orders_controller.rb` の `index` | `.includes(:product)` を削除 |
 | Java | `backend/src/main/java/.../OrderRepository.java` の `findByUser` | JOIN をやめ、RowMapper の中で商品名を取得 |
+| Go | `backend/order_repository.go` の `findOrdersByUser` | JOIN をやめ、`rows.Next()` のループの中で商品名を取得 |
 
 Rails 版は1行を消しただけの、最も典型的な N+1 です。
 

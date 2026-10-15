@@ -1,0 +1,29 @@
+diff -ruN -x node_modules -x target -x tmp -x log -x .git -x dist -x Gemfile.lock -x チケット a/backend/order_service.go b/backend/order_service.go
+--- a/backend/order_service.go
++++ b/backend/order_service.go
+@@ -26,19 +26,19 @@
+ func (e *orderError) Error() string { return e.message }
+ 
+ func (s *orderService) createOrder(ctx context.Context, userID, productID int64, quantity int) (*createdOrder, error) {
+-	tx, err := s.pool.Begin(ctx)
++	product, err := reserveStock(ctx, s.pool, productID, quantity)
+ 	if err != nil {
+ 		return nil, err
+ 	}
+-	defer tx.Rollback(ctx)
++	if product == nil {
++		return nil, &orderError{http.StatusConflict, "在庫が不足しています"}
++	}
+ 
+-	product, err := reserveStock(ctx, tx, productID, quantity)
++	tx, err := s.pool.Begin(ctx)
+ 	if err != nil {
+ 		return nil, err
+ 	}
+-	if product == nil {
+-		return nil, &orderError{http.StatusConflict, "在庫が不足しています"}
+-	}
++	defer tx.Rollback(ctx)
+ 
+ 	order := createdOrder{Amount: product.Price * quantity}
+ 	err = tx.QueryRow(ctx, `

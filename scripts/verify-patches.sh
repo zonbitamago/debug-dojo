@@ -5,7 +5,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 tmp="$(mktemp -d)"; trap 'rm -rf "$tmp"' EXIT
 status=0
 
-for stack in node-react rails-vue java-react; do
+for stack in node-react rails-vue java-react go-react; do
   all_ok=1
   "$ROOT/scripts/assemble.sh" "$stack" "$tmp/$stack-all" >/dev/null
   for dir in "$ROOT"/bugs/B*/; do

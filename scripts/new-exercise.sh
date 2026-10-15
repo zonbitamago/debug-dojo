@@ -11,7 +11,7 @@ usage() {
   $0 -s <stack> -b <バグID(カンマ区切り) | all> -o <出力先> [--no-git]
   $0 --list
 
-  stack : node-react | rails-vue | java-react
+  stack : node-react | rails-vue | java-react | go-react
   例    : $0 -s node-react -b B01,B03,B05 -o ../exercise-2026-tanaka
 USAGE
   exit 1

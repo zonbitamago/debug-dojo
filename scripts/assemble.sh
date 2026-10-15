@@ -6,11 +6,11 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
 stack="${1:-}"; out="${2:-}"
 if [ -z "$stack" ] || [ -z "$out" ]; then
-  echo "使い方: $0 <node-react|rails-vue|java-react> <出力先>" >&2
+  echo "使い方: $0 <node-react|rails-vue|java-react|go-react> <出力先>" >&2
   exit 1
 fi
 case "$stack" in
-  node-react|java-react) frontend=frontend-react ;;
+  node-react|java-react|go-react) frontend=frontend-react ;;
   rails-vue)             frontend=frontend-vue ;;
   *) echo "未対応のスタックです: $stack" >&2; exit 1 ;;
 esac

@@ -6,7 +6,7 @@
 
 若手エンジニア向けデバッグ演習の**管理用リポジトリ(シニア専用・答えを含む)**です。チーム資料「AI時代の若手エンジニア教育」の原則2「デバッグを教育の中核に置く」にある、「バグを仕込んだアプリで練習する」を実現するために作られました。
 
-- 題材は小さなECサイトの注文機能。3つのスタック(`node-react`、`rails-vue`、`java-react`)で同じ画面・API・DB・バグの症状をそろえている。
+- 題材は小さなECサイトの注文機能。4つのスタック(`node-react`、`rails-vue`、`java-react`、`go-react`)で同じ画面・API・DB・バグの症状をそろえている。
 - 正解版(バグなし)のコードと、バグごとのパッチを管理し、`scripts/new-exercise.sh` で「選んだバグだけを仕込んだ演習用リポジトリ」を生成して若手に渡す。
 - 使い方の全体像は `README.md`、演習の運用は `docs/運用ガイド.md`、各バグの答えは `bugs/Bxx-*/answer.md`。
 
@@ -25,7 +25,7 @@
 
 1. **演習用リポジトリに答えを漏らさない。** 生成物にバグID、バグのタイトル、パッチ、`answer.md` の内容が入ってはいけない。正解版のコードのコメントにも、バグの存在や対策の意図を示唆する記述(例:「二重送信を防ぐ」)を書かない。変更後は、生成物に対して `grep -rnE "B0[1-8]|answer|N\+1|競合|二重送信"` などで混入がないことを確認する。
 2. **すべてのパッチは、単独でも全部同時でも適用できること。** そのため、各バグは別々のファイル、または十分に離れた箇所を変更するように設計している(例:B04 と B08 はどちらも注文処理まわりだが、B04 は注文サービス、B08 は在庫サービスを変更する)。正解版を変えたら必ず `scripts/verify-patches.sh` を実行する。
-3. **症状は3スタックでそろえる。** チケット(`symptom.md`)はスタック共通なので、どのスタックでも同じ症状が出るようにする。原因の実装はスタックごとに自然な形でよい(例:B03 は Rails では `includes` の削除、B04 は Java では `@Transactional` の自己呼び出し)。
+3. **症状は全スタックでそろえる。** チケット(`symptom.md`)はスタック共通なので、どのスタックでも同じ症状が出るようにする。原因の実装はスタックごとに自然な形でよい(例:B03 は Rails では `includes` の削除、B04 は Java では `@Transactional` の自己呼び出し、Go では在庫の確保を `Begin` の前に移す)。スタックを追加するときは、`stacks/<stack>/` に backend・`docker-compose.yml`・`stack-notes.md` を置き、`scripts/assemble.sh`、`scripts/verify-patches.sh`、`scripts/new-exercise.sh` の使い方、`tools/build_patches.py` の `STACKS` にも足す。
 4. **パッチは手で編集しない。** 正解版のコードを変えたら、`tools/bug_edits.py` の置換定義(置換前の文字列がちょうど1回現れること)を必要に応じて直し、`python3 tools/build_patches.py` で全パッチを再生成する。パッチの見出しには日時を入れないので、再生成しても内容が同じなら差分は出ない。
 5. **共通部分は `shared/` に置く。** DB(`shared/db/init.sql`)、決済モック、React と Vue の画面は全スタックで共有している。`payment-mock` は演習上「外部サービス」なので、バグを仕込む対象にしない。
 
@@ -38,22 +38,22 @@
 
 ## 動作確認の状況
 
-作成時(claude.ai 上の環境)には RubyGems と Maven Central に接続できず、rails-vue と java-react は実行していなかった。2026-10-15 に macOS(Apple Silicon、Docker Desktop)で3スタックすべてを `docker compose` で起動し、正解版と全バグを1つずつ仕込んだ版を確認した。
+作成時(claude.ai 上の環境)には RubyGems と Maven Central に接続できず、rails-vue と java-react は実行していなかった。2026-10-15 に macOS(Apple Silicon、Docker Desktop)で4スタックすべてを `docker compose` で起動し、正解版と全バグを1つずつ仕込んだ版を確認した(go-react は同日に追加)。
 
-| 確認項目 | node-react | rails-vue | java-react |
-|---|---|---|---|
-| 全パッチの単独・同時適用 | 済 | 済 | 済 |
-| `docker compose up --build` での起動 | 済 | 済 | 済 |
-| 正解版の動作(画面と API) | 済 | 済 | 済 |
-| B01・B02 の症状再現(ブラウザ) | 済 | 済(Vue 画面) | 済 |
-| B03〜B08 の症状再現 | 済 | 済(B03 は差が小さい。下記) | 済 |
+| 確認項目 | node-react | rails-vue | java-react | go-react |
+|---|---|---|---|---|
+| 全パッチの単独・同時適用 | 済 | 済 | 済 | 済 |
+| `docker compose up --build` での起動 | 済 | 済 | 済 | 済 |
+| 正解版の動作(画面と API) | 済 | 済 | 済 | 済 |
+| B01・B02 の症状再現(ブラウザ) | 済 | 済(Vue 画面) | 済 | 済 |
+| B03〜B08 の症状再現 | 済 | 済(B03 は差が小さい。下記) | 済 | 済 |
 
 起動にかかった時間は、イメージのビルド後で約50秒(うちDBへの300万件の投入が約30秒)。
 
 ## 未完了の作業(優先順)
 
 1. **症状の再現を自動で確かめるスモークテストを作る。** 例:`scripts/smoke-test.sh <stack>` で、正解版とバグ入り版をそれぞれ Docker で起動し、下の表の内容を API と psql で確認する。正解版のコード変更時の回帰確認に使えるようにする。作るときは「実行して分かった注意点」も参照する。
-2. **依存関係を固定する。** rails-vue は `Gemfile.lock` がまだないので、初回の `bundle install` で生成されたものをコミットする(2026-10-15 の確認時は rails 7.2.4、pg 1.7.0、puma 6.6.1 が入った)。node のフロントエンドとバックエンドも、`package-lock.json` を生成してコミットするか検討する(バージョンは `package.json` で固定済み)。
+2. **依存関係を固定する。** rails-vue は `Gemfile.lock` がまだないので、初回の `bundle install` で生成されたものをコミットする(2026-10-15 の確認時は rails 7.2.4、pg 1.7.0、puma 6.6.1 が入った)。node のフロントエンドとバックエンドも、`package-lock.json` を生成してコミットするか検討する(バージョンは `package.json` で固定済み)。go-react は `go.sum` をコミット済み。
 3. 実行して問題が見つかった場合は、正解版を直し、「正解版のコードを変更するときの手順」に従ってパッチを再生成する。`README.md` の「動作確認の状況」の表も更新する。
 
 ## 期待される結果(症状の確認方法)
@@ -64,7 +64,7 @@ API は `http://localhost:8080`、ユーザーは `X-User-Id` ヘッダーで指
 |---|---|---|---|
 | B01 | 画面で注文ボタンをダブルクリック | POST 1回、注文1件 | POST 2回、注文2件 |
 | B02 | 画面で注文後、一覧の在庫表示を見る | 在庫表示が減る | 在庫表示が変わらない(DBは減っている) |
-| B03 | `GET /api/orders`(ユーザー2、1,200件) | node 8〜13ms、rails 27〜59ms、java 11〜15ms | node 160〜187ms、rails 104〜135ms、java 145〜168ms。DB へのクエリは node と java が1,201回、rails は8回(下記) |
+| B03 | `GET /api/orders`(ユーザー2、1,200件) | node 8〜13ms、rails 27〜59ms、java 11〜15ms、go 6〜7ms | node 160〜187ms、rails 104〜135ms、java 145〜168ms、go 99〜112ms。DB へのクエリは node・java・go が1,201回、rails は8回(下記) |
 | B04 | 商品7を2個注文(79,600円、与信上限で402) | 在庫80のまま | 在庫80→78(Java は `pending` の注文も1件残る) |
 | B05 | `GET /api/reports/daily-sales` と、日本時間で集計したSQLを比較 | 一致 | 各日ずれる。当日分は約3分の1になる |
 | B06 | `GET /api/orders/search?number=ORD-11234567` | 2〜15ms(Index Scan) | 60〜181ms(`EXPLAIN` で Parallel Seq Scan) |
@@ -76,7 +76,9 @@ rails-vue の B03 は、Rails のクエリキャッシュが同じ商品の SELE
 ## 実行して分かった注意点
 
 - **ポートの競合**:DB はホストの 5432 番を使う。ほかの PostgreSQL と競合する場合は、`docker-compose.override.yml` で `ports: !override` を使って別の番号にする。
-- **コード変更の反映**:node-react の `tsx watch` は、エディタでの上書き保存は検知するが、`patch` コマンドのようにファイルを置き換える書き込みは検知しない。スモークテストでパッチを当てたあとは `docker compose restart backend` で再起動する。Rails は再起動なしで反映される。Java は `docker compose up -d --build backend` が必要(1回10〜20秒)。B07 は `docker-compose.yml` の変更なので、どのスタックでも `docker compose up -d backend` でコンテナを作り直す。
+- **コード変更の反映**:node-react の `tsx watch` は、エディタでの上書き保存は検知するが、`patch` コマンドのようにファイルを置き換える書き込みは検知しない。スモークテストでパッチを当てたあとは `docker compose restart backend` で再起動する。Rails は再起動なしで反映される。Java と Go は `docker compose up -d --build backend` が必要(1回10〜20秒)。B07 は `docker-compose.yml` の変更なので、どのスタックでも `docker compose up -d backend` でコンテナを作り直す。
 - **起動直後の画面**:バックエンドが待ち受けを始める前に画面を開くと、商品一覧の取得が500になる(Vite のプロキシが接続を拒否されるため)。再読み込みすれば表示される。
 - **macOS でのパッチの再生成**:macOS の `diff` は GNU diff と差分の区切り方が異なることがあり、`build_patches.py` を実行すると `bugs/B03-n-plus-one/patches/java-react.patch` にだけ見た目の差分が出る(適用結果は同じ)。正解版を変えていないときは `git checkout` で戻してよい。
-- **API の JSON の細かな違い**:日時は node と java が UTC(`Z`)、rails が `+09:00` で返す。java は注文一覧にも `userName: null` を含める。画面はどちらでも日本時間で表示されるので、演習には影響しない。
+- **API の JSON の細かな違い**:日時は node・java・go が UTC(`Z`)、rails が `+09:00` で返す。java は注文一覧にも `userName: null` を含める。画面はどちらでも日本時間で表示されるので、演習には影響しない。
+- **go-react のクエリ数**:pgx の接続プールは、1秒以上使われていなかった接続を渡す前に `-- ping` を送る。DB のログでクエリを数えると、その分(1〜2回)が加わる。
+- **go-react の B04 の形**:Node 版のように `reserveStock` に `tx` ではなくプールを渡す形にすると、1件の注文が接続を2本同時に使い、同時注文が多いと接続プールを使い切るおそれがある。そのため Rails 版と同じく、在庫の確保を `Begin` の前に移す形にした。B04 と B08 を同時に仕込んで15件を同時に注文しても、Go 版と Node 版のどちらも詰まらないことを確認済み。
