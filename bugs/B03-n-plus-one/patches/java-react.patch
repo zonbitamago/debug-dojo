@@ -1,0 +1,30 @@
+diff -ruN -x node_modules -x target -x tmp -x log -x .git -x dist -x Gemfile.lock -x チケット a/backend/src/main/java/com/example/shop/OrderRepository.java b/backend/src/main/java/com/example/shop/OrderRepository.java
+--- a/backend/src/main/java/com/example/shop/OrderRepository.java	2026-10-15 03:17:02.028357178 +0000
++++ b/backend/src/main/java/com/example/shop/OrderRepository.java	2026-10-15 03:17:02.008935313 +0000
+@@ -37,17 +37,19 @@
+     public List<OrderView> findByUser(long userId) {
+         return jdbc.query(
+                 """
+-                SELECT o.id, o.order_number, o.quantity, o.amount, o.status, o.created_at,
+-                       p.name AS product_name
+-                  FROM orders o
+-                  JOIN products p ON p.id = o.product_id
+-                 WHERE o.user_id = ?
+-                 ORDER BY o.created_at DESC
++                SELECT id, order_number, product_id, quantity, amount, status, created_at
++                  FROM orders
++                 WHERE user_id = ?
++                 ORDER BY created_at DESC
+                 """,
+-                (rs, i) -> toView(rs, rs.getString("product_name"), null),
++                (rs, i) -> toView(rs, findProductName(rs.getLong("product_id")), null),
+                 userId);
+     }
+ 
++    private String findProductName(long productId) {
++        return jdbc.queryForObject("SELECT name FROM products WHERE id = ?", String.class, productId);
++    }
++
+     public OrderView findByOrderNumber(String orderNumber) {
+         List<OrderView> rows = jdbc.query(
+                 """

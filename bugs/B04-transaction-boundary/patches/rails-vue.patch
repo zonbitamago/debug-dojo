@@ -1,0 +1,17 @@
+diff -ruN -x node_modules -x target -x tmp -x log -x .git -x dist -x Gemfile.lock -x チケット a/backend/app/services/order_service.rb b/backend/app/services/order_service.rb
+--- a/backend/app/services/order_service.rb	2026-10-15 03:17:02.144108067 +0000
++++ b/backend/app/services/order_service.rb	2026-10-15 03:17:02.119920629 +0000
+@@ -17,10 +17,10 @@
+   def call(user_id:, product_id:, quantity:)
+     order = nil
+ 
+-    ActiveRecord::Base.transaction do
+-      product = Inventory.reserve(product_id, quantity)
+-      raise OrderError.new("在庫が不足しています", 409) unless product
++    product = Inventory.reserve(product_id, quantity)
++    raise OrderError.new("在庫が不足しています", 409) unless product
+ 
++    ActiveRecord::Base.transaction do
+       amount = product.price * quantity
+       order = Order.create!(user_id: user_id, product_id: product_id, quantity: quantity, amount: amount)
+       order.reload

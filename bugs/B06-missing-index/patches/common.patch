@@ -1,0 +1,10 @@
+diff -ruN -x node_modules -x target -x tmp -x log -x .git -x dist -x Gemfile.lock -x チケット a/db/init.sql b/db/init.sql
+--- a/db/init.sql	2026-10-15 03:17:02.409799854 +0000
++++ b/db/init.sql	2026-10-15 03:17:02.397634354 +0000
+@@ -76,6 +76,5 @@
+ -- インデックス
+ CREATE INDEX idx_orders_user_id_created_at ON orders (user_id, created_at DESC);
+ CREATE INDEX idx_orders_created_at ON orders (created_at);
+-CREATE INDEX idx_orders_order_number ON orders (order_number);
+ 
+ ANALYZE users, products, orders;

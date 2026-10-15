@@ -1,0 +1,33 @@
+diff -ruN -x node_modules -x target -x tmp -x log -x .git -x dist -x Gemfile.lock -x チケット a/backend/src/main/java/com/example/shop/InventoryService.java b/backend/src/main/java/com/example/shop/InventoryService.java
+--- a/backend/src/main/java/com/example/shop/InventoryService.java	2026-10-15 03:17:02.725614713 +0000
++++ b/backend/src/main/java/com/example/shop/InventoryService.java	2026-10-15 03:17:02.708855953 +0000
+@@ -14,17 +14,18 @@
+         this.jdbc = jdbc;
+     }
+ 
++    private record ProductStock(long id, String name, int price, int stock) {}
++
+     public ReservedProduct reserve(long productId, int quantity) {
+-        List<ReservedProduct> rows = jdbc.query(
+-                """
+-                UPDATE products
+-                   SET stock = stock - ?
+-                 WHERE id = ?
+-                   AND stock >= ?
+-                RETURNING id, name, price
+-                """,
+-                (rs, i) -> new ReservedProduct(rs.getLong("id"), rs.getString("name"), rs.getInt("price")),
+-                quantity, productId, quantity);
+-        return rows.isEmpty() ? null : rows.get(0);
++        List<ProductStock> rows = jdbc.query(
++                "SELECT id, name, price, stock FROM products WHERE id = ?",
++                (rs, i) -> new ProductStock(rs.getLong("id"), rs.getString("name"), rs.getInt("price"), rs.getInt("stock")),
++                productId);
++        if (rows.isEmpty() || rows.get(0).stock() < quantity) {
++            return null;
++        }
++        ProductStock product = rows.get(0);
++        jdbc.update("UPDATE products SET stock = ? WHERE id = ?", product.stock() - quantity, productId);
++        return new ReservedProduct(product.id(), product.name(), product.price());
+     }
+ }

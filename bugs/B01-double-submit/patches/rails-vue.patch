@@ -1,0 +1,20 @@
+diff -ruN -x node_modules -x target -x tmp -x log -x .git -x dist -x Gemfile.lock -x チケット a/frontend/src/components/OrderForm.vue b/frontend/src/components/OrderForm.vue
+--- a/frontend/src/components/OrderForm.vue	2026-10-15 03:17:01.662080168 +0000
++++ b/frontend/src/components/OrderForm.vue	2026-10-15 03:17:01.647279232 +0000
+@@ -10,7 +10,6 @@
+ const message = ref<{ type: 'success' | 'error'; text: string } | null>(null);
+ 
+ async function handleOrder() {
+-  if (submitting.value) return;
+   submitting.value = true;
+   message.value = null;
+   try {
+@@ -30,7 +29,7 @@
+     <select v-model.number="quantity">
+       <option v-for="n in [1, 2, 3, 4, 5]" :key="n" :value="n">{{ n }}個</option>
+     </select>
+-    <button class="primary" :disabled="submitting" @click="handleOrder">
++    <button class="primary" @click="handleOrder">
+       {{ submitting ? '処理中…' : '注文を確定する' }}
+     </button>
+     <p v-if="message" :class="`message ${message.type}`">{{ message.text }}</p>

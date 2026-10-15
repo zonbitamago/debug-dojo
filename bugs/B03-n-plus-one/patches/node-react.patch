@@ -1,0 +1,30 @@
+diff -ruN -x node_modules -x target -x tmp -x log -x .git -x dist -x Gemfile.lock -x チケット a/backend/src/orderRepository.ts b/backend/src/orderRepository.ts
+--- a/backend/src/orderRepository.ts	2026-10-15 03:17:01.921700589 +0000
++++ b/backend/src/orderRepository.ts	2026-10-15 03:17:01.906093791 +0000
+@@ -37,15 +37,19 @@
+ 
+ export async function findOrdersByUser(userId: number): Promise<OrderView[]> {
+   const { rows } = await pool.query(
+-    `SELECT o.id, o.order_number, o.quantity, o.amount, o.status, o.created_at,
+-            p.name AS product_name
+-       FROM orders o
+-       JOIN products p ON p.id = o.product_id
+-      WHERE o.user_id = $1
+-      ORDER BY o.created_at DESC`,
++    `SELECT id, order_number, product_id, quantity, amount, status, created_at
++       FROM orders
++      WHERE user_id = $1
++      ORDER BY created_at DESC`,
+     [userId],
+   );
+-  return rows.map(toView);
++
++  const orders: OrderView[] = [];
++  for (const row of rows) {
++    const product = await pool.query('SELECT name FROM products WHERE id = $1', [row.product_id]);
++    orders.push(toView({ ...row, product_name: product.rows[0]?.name }));
++  }
++  return orders;
+ }
+ 
+ export async function findOrderByNumber(orderNumber: string): Promise<OrderView | null> {

@@ -1,0 +1,8 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: 10
+
+development:
+  <<: *default
+  url: <%= ENV.fetch("DATABASE_URL", "postgres://app:app@localhost:5432/shop") %>

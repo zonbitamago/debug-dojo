@@ -1,0 +1,11 @@
+diff -ruN -x node_modules -x target -x tmp -x log -x .git -x dist -x Gemfile.lock -x チケット a/backend/app/controllers/orders_controller.rb b/backend/app/controllers/orders_controller.rb
+--- a/backend/app/controllers/orders_controller.rb	2026-10-15 03:17:01.970369170 +0000
++++ b/backend/app/controllers/orders_controller.rb	2026-10-15 03:17:01.954194201 +0000
+@@ -1,7 +1,6 @@
+ class OrdersController < ApplicationController
+   def index
+     orders = Order.where(user_id: current_user_id)
+-                  .includes(:product)
+                   .order(created_at: :desc)
+     render json: orders.map(&:as_view)
+   end

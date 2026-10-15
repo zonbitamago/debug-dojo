@@ -1,0 +1,12 @@
+diff -ruN -x node_modules -x target -x tmp -x log -x .git -x dist -x Gemfile.lock -x チケット a/backend/src/main/java/com/example/shop/ReportRepository.java b/backend/src/main/java/com/example/shop/ReportRepository.java
+--- a/backend/src/main/java/com/example/shop/ReportRepository.java	2026-10-15 03:17:02.359690274 +0000
++++ b/backend/src/main/java/com/example/shop/ReportRepository.java	2026-10-15 03:17:02.340598446 +0000
+@@ -17,7 +17,7 @@
+     public List<DailySales> dailySales() {
+         return jdbc.query(
+                 """
+-                SELECT to_char((created_at AT TIME ZONE 'Asia/Tokyo')::date, 'YYYY-MM-DD') AS day,
++                SELECT to_char(created_at::date, 'YYYY-MM-DD') AS day,
+                        count(*) AS orders,
+                        sum(amount) AS sales
+                   FROM orders

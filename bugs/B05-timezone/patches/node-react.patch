@@ -1,0 +1,12 @@
+diff -ruN -x node_modules -x target -x tmp -x log -x .git -x dist -x Gemfile.lock -x チケット a/backend/src/report.ts b/backend/src/report.ts
+--- a/backend/src/report.ts	2026-10-15 03:17:02.249133871 +0000
++++ b/backend/src/report.ts	2026-10-15 03:17:02.229352857 +0000
+@@ -8,7 +8,7 @@
+ 
+ export async function dailySales(): Promise<DailySales[]> {
+   const { rows } = await pool.query(
+-    `SELECT to_char((created_at AT TIME ZONE 'Asia/Tokyo')::date, 'YYYY-MM-DD') AS day,
++    `SELECT to_char(created_at::date, 'YYYY-MM-DD') AS day,
+             count(*) AS orders,
+             sum(amount) AS sales
+        FROM orders
