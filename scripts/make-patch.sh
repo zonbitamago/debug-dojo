@@ -14,5 +14,7 @@ tmp="$(mktemp -d)"; trap 'rm -rf "$tmp"' EXIT
 "$ROOT/scripts/assemble.sh" "$stack" "$tmp/a"
 ln -s "$(cd "$edited" && pwd)" "$tmp/b"
 cd "$tmp"
+# 見出しの日時を消す(BSD sed は \t をタブと解釈しないため、タブ文字そのものを渡す)
+tab=$'\t'
 diff -ruN -x node_modules -x target -x tmp -x log -x .git -x dist -x Gemfile.lock -x 'チケット' a b/ \
-  | sed -E -e 's#^\+\+\+ b//#+++ b/#' -e 's#^((---|\+\+\+) [^\t]+)\t.*$#\1#' || true
+  | sed -E -e 's#^\+\+\+ b//#+++ b/#' -e "s#^((---|\+\+\+) [^${tab}]+)${tab}.*\$#\1#" || true

@@ -62,7 +62,10 @@ done
 
 # チケット(症状カード)を、バグIDがわからない名前で並び順をシャッフルして配置
 mkdir -p "$out/チケット"
-mapfile -t shuffled < <(printf '%s\n' "${ids[@]}" | shuf)
+# shuf や mapfile がない macOS 標準の環境でも動くように、awk で並べ替える
+shuffled=()
+while IFS= read -r id; do shuffled+=("$id"); done \
+  < <(printf '%s\n' "${ids[@]}" | awk 'BEGIN { srand() } { print rand() "\t" $0 }' | sort -n | cut -f2-)
 echo "出題記録(若手には見せないでください)"
 i=1
 for id in "${shuffled[@]}"; do
